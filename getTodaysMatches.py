@@ -1,11 +1,10 @@
 import requests
 import matchEntity
 from bs4 import BeautifulSoup
-from datetime import date
 
-def getTodaysMatches():
-    todayStr = date.today().strftime('%Y%m%d')
-    url = 'https://www.jleague.jp/match/search/j1/{}/'.format(todayStr)
+
+def getTodaysMatches(category, todayStr):
+    url = 'https://www.jleague.jp/match/search/{}/{}/'.format(category, todayStr)
     req = requests.get(url)
     soup = BeautifulSoup(req.text, 'html.parser')
 

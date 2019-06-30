@@ -4,6 +4,7 @@ import config
 import requests
 from requests_oauthlib import OAuth1Session
 import matchEntity
+from datetime import date
 from getTodaysMatches import getTodaysMatches
 
 # CK      = config.CONSUMER_KEY
@@ -18,20 +19,22 @@ twitter = OAuth1Session(CK, CS, AT, ATS)
 
 URL = 'https://api.twitter.com/1.1/statuses/update.json'
 
-def getTweet():
-    matches = getTodaysMatches()
+def getTweet(category):
+    todayStr = date.today().strftime('%Y%m%d')
+    matches = getTodaysMatches(category, todayStr)
     if not matches:
-        text = '本日、J1開催の試合はありません。'
+        text = '本日、{}開催の試合はありません。'.format(str.upper(category))
         return text
-    
     texts = []
-    texts.append('本日、J1開催の試合')
+    texts.append('本日、{}開催の試合'.format(str.upper(category)))
     for match in matches:
         texts.append(match.startTime + ',' + match.stadium + ',' + match.homeTeam + 'VS' + match.awayTeam)
         text = '\r\n'.join(texts)
     return text
     
 def lambda_handler(event, context):
+    categories = ['j1', 'j2', 'j3']
     session = OAuth1Session(CK, CS, AT, ATS)
-    params = {"status": getTweet() }
-    req = session.post(URL, params = params)
+    for category in categories:
+        params = {"status": getTweet(category) }
+        req = session.post(URL, params = params)
