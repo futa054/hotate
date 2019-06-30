@@ -28,7 +28,7 @@ def getTweet():
     texts.append('本日、J1開催の試合')
     for match in matches:
         texts.append(match.startTime + ',' + match.stadium + ',' + match.homeTeam + 'VS' + match.awayTeam)
-        text = '\n'.join(texts)
+        text = '\r\n'.join(texts)
     return text
     
 def lambda_handler(event, context):
