@@ -24,8 +24,6 @@ def getTweet(category):
     matches = getTodaysMatches(category[0], todayStr)
     texts = []
     if not matches:
-        text = '本日、{}の試合はありません。'.format(str.upper(category[1]))
-        texts.append(text)
         return texts
     header = '本日、{}の試合一覧'.format(str.upper(category[1]))
     text = ''
@@ -39,11 +37,13 @@ def getTweet(category):
     return texts
     
 def lambda_handler(event, context):
-    categories = {'j1': 'J1', 'j2': 'J2', 'j3': 'J3', 'emperor': '天皇杯'}
+    categories = {'j1': 'J1', 'j2': 'J2', 'j3': 'J3', 'emperor': '天皇杯', 'acl': 'ACL', 'leaguecup': 'ルヴァン'}
     tweets = []
     for category in categories.items():
         tweets += getTweet(category)
     session = OAuth1Session(CK, CS, AT, ATS)
+    if not tweets:
+        tweets = ['本日、開催の試合はありません']
     for tweet in tweets:
         params = {"status": tweet }
         req = session.post(URL, params = params)
