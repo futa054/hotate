@@ -18,8 +18,8 @@ def getTodaysMatches(category, todayStr):
         if timeAndStadium:
             time =timeAndStadium.get_text()[:5]
             stadium = timeAndStadium.find('a').get_text()
-            homeTeam = m.find('td', attrs={'class': 'clubName leftside'}).get_text()[1:][:-1]
-            awayTeam = m.find('td', attrs={'class': 'clubName rightside'}).get_text()[1:][:-1]
+            homeTeam = m.find('td', attrs={'class': 'clubName leftside'}).get_text().replace(' ', '').replace('\n', '')
+            awayTeam = m.find('td', attrs={'class': 'clubName rightside'}).get_text().replace(' ', '').replace('\n', '')
             match = matchEntity.Match(time, stadium, homeTeam, awayTeam)
             matchList.append(match)
     

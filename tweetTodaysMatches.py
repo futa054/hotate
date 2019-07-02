@@ -7,34 +7,43 @@ import matchEntity
 from datetime import date
 from getTodaysMatches import getTodaysMatches
 
-# CK      = config.CONSUMER_KEY
-# CS      = config.CONSUMER_SECRET
-# AT      = config.ACCESS_TOKEN
-# ATS     = config.ACCESS_TOKEN_SECRET
-CK      = os.environ['CONSUMER_KEY']
-CS      = os.environ['CONSUMER_SECRET']
-AT      = os.environ['ACCESS_TOKEN']
-ATS     = os.environ['ACCESS_TOKEN_SECRET']
+CK      = config.CONSUMER_KEY
+CS      = config.CONSUMER_SECRET
+AT      = config.ACCESS_TOKEN
+ATS     = config.ACCESS_TOKEN_SECRET
+# CK      = os.environ['CONSUMER_KEY']
+# CS      = os.environ['CONSUMER_SECRET']
+# AT      = os.environ['ACCESS_TOKEN']
+# ATS     = os.environ['ACCESS_TOKEN_SECRET']
 twitter = OAuth1Session(CK, CS, AT, ATS)
 
 URL = 'https://api.twitter.com/1.1/statuses/update.json'
 
 def getTweet(category):
     todayStr = date.today().strftime('%Y%m%d')
-    matches = getTodaysMatches(category, todayStr)
-    if not matches:
-        text = '本日、{}開催の試合はありません。'.format(str.upper(category))
-        return text
+    matches = getTodaysMatches(category[0], todayStr)
     texts = []
-    texts.append('本日、{}開催の試合'.format(str.upper(category)))
+    if not matches:
+        text = '本日、{}の試合はありません。'.format(str.upper(category[1]))
+        texts.append(text)
+        return texts
+    header = '本日、{}の試合一覧'.format(str.upper(category[1]))
+    text = ''
     for match in matches:
-        texts.append(match.startTime + ',' + match.stadium + ',' + match.homeTeam + 'VS' + match.awayTeam)
-        text = '\r\n'.join(texts)
-    return text
+        text += '\r\n' + match.startTime + ',' + match.stadium + ',' + match.homeTeam + 'VS' + match.awayTeam
+        if len(text) > 100:
+            texts.append(header + text)
+            text = ''
+    if text:
+        texts.append(header + text)
+    return texts
     
 def lambda_handler(event, context):
-    categories = ['j1', 'j2', 'j3']
+    categories = {'j1': 'J1', 'j2': 'J2', 'j3': 'J3', 'emperor': '天皇杯'}
+    tweets = []
+    for category in categories.items():
+        tweets += getTweet(category)
     session = OAuth1Session(CK, CS, AT, ATS)
-    for category in categories:
-        params = {"status": getTweet(category) }
+    for tweet in tweets:
+        params = {"status": tweet }
         req = session.post(URL, params = params)
