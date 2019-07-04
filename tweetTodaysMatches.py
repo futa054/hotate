@@ -7,17 +7,21 @@ import matchEntity
 from datetime import date
 from getTodaysMatches import getTodaysMatches
 
-CK      = config.CONSUMER_KEY
-CS      = config.CONSUMER_SECRET
-AT      = config.ACCESS_TOKEN
-ATS     = config.ACCESS_TOKEN_SECRET
-# CK      = os.environ['CONSUMER_KEY']
-# CS      = os.environ['CONSUMER_SECRET']
-# AT      = os.environ['ACCESS_TOKEN']
-# ATS     = os.environ['ACCESS_TOKEN_SECRET']
-twitter = OAuth1Session(CK, CS, AT, ATS)
-
 URL = 'https://api.twitter.com/1.1/statuses/update.json'
+
+def getSessionLocal():
+    CK = config.CONSUMER_KEY
+    CS = config.CONSUMER_SECRET
+    AT = config.ACCESS_TOKEN
+    ATS = config.ACCESS_TOKEN_SECRET
+    return OAuth1Session(CK, CS, AT, ATS)
+
+def getSession():
+    CK = os.environ['CONSUMER_KEY']
+    CS = os.environ['CONSUMER_SECRET']
+    AT = os.environ['ACCESS_TOKEN']
+    ATS = os.environ['ACCESS_TOKEN_SECRET']
+    return OAuth1Session(CK, CS, AT, ATS)
 
 def getTweet(category):
     todayStr = date.today().strftime('%Y%m%d')
@@ -41,9 +45,9 @@ def lambda_handler(event, context):
     tweets = []
     for category in categories.items():
         tweets += getTweet(category)
-    session = OAuth1Session(CK, CS, AT, ATS)
     if not tweets:
         tweets = ['本日、開催の試合はありません']
+    session = getSession()
     for tweet in tweets:
         params = {"status": tweet }
         req = session.post(URL, params = params)
