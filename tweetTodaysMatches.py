@@ -23,6 +23,12 @@ def getSession():
     ATS = os.environ['ACCESS_TOKEN_SECRET']
     return OAuth1Session(CK, CS, AT, ATS)
 
+def setTextNum(texts):
+    countList = ['①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧', '⑨', '⑩']
+    for index in range(len(texts)):
+        text = texts[index]
+        texts[index] = text.replace('試合一覧', '試合一覧' + countList[index])
+
 def getTweet(category):
     todayStr = date.today().strftime('%Y%m%d')
     matches = getTodaysMatches(category[0], todayStr)
@@ -38,6 +44,8 @@ def getTweet(category):
             text = ''
     if text:
         texts.append(header + text)
+    if len(texts) > 1:
+        setTextNum(texts)
     return texts
     
 def lambda_handler(event, context):
